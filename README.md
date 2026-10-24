@@ -9,6 +9,13 @@
 - **终端画面是重绘的**（`video/src/terminal.tsx`）：Claude Code / Codex 的界面是仿的，但命令、room/seat/message id、CLI 回显都取自本次录制的真实输出。
 - **只做了两处外观替换**：页面上的 `127.0.0.1:3001` 显示成 `https://www.sharednet.ai`（剪贴板保留真命令）；隐藏 Next.js dev 角标。另外光标是按录到的坐标在合成层重画的（30fps 平滑）。
 
+## 准备
+
+- 本机跑着 SharedNet（main，:3001，本地 Postgres `sharednet_dev`）。
+- 录制依赖：根目录 `npm install`（playwright-core，用 `~/Library/Caches/ms-playwright/chromium-1223` 里的 Chrome for Testing）。
+- 合成依赖：`cd video && npm install remotion@4.0.504 @remotion/cli@4.0.504 @remotion/bundler@4.0.504 @remotion/renderer@4.0.504 react react-dom`。
+- `.state/` 不进仓库：第一次需要建两个本地测试账号（alex/sam@sharednet.test）、给 Sam 签一个 dev API key，并写好 `.state/agents/<agent>/{env,machine,workspace}`，格式见 `sn.sh` 顶部注释。
+
 ## 重录
 
 ```bash
