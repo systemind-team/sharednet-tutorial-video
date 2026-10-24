@@ -1,0 +1,9 @@
+{
+  "name": "sharednet-tutorial-video",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "zh": "remotion render TutorialZH out/sharednet-tutorial-zh.mp4",
+    "en": "remotion render TutorialEN out/sharednet-tutorial-en.mp4"
+  }
+}

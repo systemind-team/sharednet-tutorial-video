@@ -1,0 +1,11 @@
+node_modules/
+video/node_modules
+# local test accounts, dev API key, cookies, simulated machines
+.state/
+# raw take and generated media (rebuild with record.mjs / build-clips.mjs / remotion render)
+rec/
+video/public/clips/
+video/out/
+video/stills/
+video/review/
+.DS_Store
