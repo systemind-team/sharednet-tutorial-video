@@ -9,3 +9,5 @@ video/out/
 video/stills/
 video/review/
 .DS_Store
+video/public/audio/
+previews/

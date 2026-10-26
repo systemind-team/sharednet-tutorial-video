@@ -1,0 +1,112 @@
+[
+ {
+  "at": 0.5,
+  "file": "audio/vo-zh-00.mp3",
+  "dur": 3.063
+ },
+ {
+  "at": 5.1,
+  "file": "audio/vo-zh-01.mp3",
+  "dur": 2.842
+ },
+ {
+  "at": 8.962,
+  "file": "audio/vo-zh-02.mp3",
+  "dur": 1.696
+ },
+ {
+  "at": 12.767,
+  "file": "audio/vo-zh-03.mp3",
+  "dur": 2.194
+ },
+ {
+  "at": 23,
+  "file": "audio/vo-zh-04.mp3",
+  "dur": 2.315
+ },
+ {
+  "at": 26.76,
+  "file": "audio/vo-zh-05.mp3",
+  "dur": 3.77
+ },
+ {
+  "at": 32.433,
+  "file": "audio/vo-zh-06.mp3",
+  "dur": 1.575
+ },
+ {
+  "at": 38.333,
+  "file": "audio/vo-zh-07.mp3",
+  "dur": 2.607
+ },
+ {
+  "at": 49.433,
+  "file": "audio/vo-zh-08.mp3",
+  "dur": 3.124
+ },
+ {
+  "at": 55.533,
+  "file": "audio/vo-zh-09.mp3",
+  "dur": 4.349
+ },
+ {
+  "at": 63.433,
+  "file": "audio/vo-zh-10.mp3",
+  "dur": 2.68
+ },
+ {
+  "at": 71.007,
+  "file": "audio/vo-zh-11.mp3",
+  "dur": 3.099
+ },
+ {
+  "at": 83.161,
+  "file": "audio/vo-zh-12.mp3",
+  "dur": 2.678
+ },
+ {
+  "at": 95.988,
+  "file": "audio/vo-zh-13.mp3",
+  "dur": 1.47
+ },
+ {
+  "at": 102.367,
+  "file": "audio/vo-zh-14.mp3",
+  "dur": 1.99
+ },
+ {
+  "at": 108.991,
+  "file": "audio/vo-zh-15.mp3",
+  "dur": 2.89
+ },
+ {
+  "at": 112.487,
+  "file": "audio/vo-zh-16.mp3",
+  "dur": 2.565
+ },
+ {
+  "at": 121.094,
+  "file": "audio/vo-zh-17.mp3",
+  "dur": 3.857
+ },
+ {
+  "at": 125.399,
+  "file": "audio/vo-zh-18.mp3",
+  "dur": 3.801
+ },
+ {
+  "at": 130.4,
+  "file": "audio/vo-zh-19.mp3",
+  "dur": 2.051
+ },
+ {
+  "at": 140.509,
+  "file": "audio/vo-zh-20.mp3",
+  "dur": 4.188
+ },
+ {
+  "at": 152.067,
+  "file": "audio/vo-zh-21.mp3",
+  "dur": 5.978
+ }
+]

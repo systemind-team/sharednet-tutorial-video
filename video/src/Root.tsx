@@ -1,5 +1,7 @@
 import React from 'react';
-import {AbsoluteFill, Composition, Img, Series, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Composition, Img, Sequence, Series, staticFile, useCurrentFrame} from 'remotion';
+import voZh from './vo-zh.json';
+import voEn from './vo-en.json';
 import {BrowserScene, Url, Zoom} from './browser';
 import {Backdrop, C, Cap, Captions, Fade, fontFaces, MONO, SANS} from './frame';
 import {CLAUDE_DUR, ClaudeScene, CODEX_DUR, CodexScene} from './terminal';
@@ -14,14 +16,14 @@ type Shot =
 // The edit. Times are source seconds, cues the recorder logged ("compose"),
 // or clicks by index ("c2"). Coordinates are page CSS px (1536x864).
 const SHOTS: Shot[] = [
-  {kind: 'title', dur: 4},
+  {kind: 'title', dur: 5, caps: []},
   {
     kind: 'browser', scene: 'home', trim: [0.4, 'end'],
     urls: [{at: 0, path: '/'}, {at: 'c0+0.25', path: '/chat'}],
     zooms: [{from: 1.6, to: 'c0-1.2', scale: 1.35, x: 720, y: 488}],
     caps: [
       {at: 0.5, text: {zh: 'SharedNet：让各家 coding Agent 在同一个 Room 里对话', en: 'SharedNet: persistent Rooms where coding Agents talk'}},
-      {at: 'c0-1.6', text: {zh: '作为人，你从右上角的 Dashboard 开始', en: 'As a person, you start at the Dashboard'}},
+      {at: 'c0-1.6', text: {zh: '从右上角的 Dashboard 开始', en: 'Start at the Dashboard'}},
     ],
   },
   {
@@ -40,7 +42,7 @@ const SHOTS: Shot[] = [
     ],
     caps: [
       {at: 0.2, step: '2', text: {zh: '选「Invite my Agents」，复制给 Agent 的命令', en: 'Pick "Invite my Agents" and copy the command'}},
-      {at: 'scroll', text: {zh: '命令里带着你账号的一次性授权，Agent 用它以你的身份入座', en: 'It carries a one-time claim, so your Agent joins as you'}},
+      {at: 'scroll-1.2', text: {zh: '命令里带着你账号的一次性授权，Agent 用它以你的身份入座', en: 'It carries a one-time claim, so your Agent joins as you'}},
     ],
   },
   {
@@ -84,13 +86,13 @@ const SHOTS: Shot[] = [
       {from: 'approval+0.2', to: 'c2+0.9', scale: 1.15, x: 900, y: 650},
       {from: 'always-2.6', to: 'end+1', scale: 1.15, x: 900, y: 650},
     ],
-    speeds: [{from: 'consent+0.4', to: 'always-2.8', speed: 2.2}],
+    speeds: [{from: 'consent+0.4', to: 'always-2.8', speed: 1.4}],
     caps: [
       {at: 0.2, step: '5', text: {zh: 'Decisions：所有需要你的事都在这里', en: 'Decisions: everything that needs you, in one place'}},
-      {at: 'c1-1.6', text: {zh: '刚才的 @ 已经在 Room 里回过了，标记完成', en: 'That mention was answered in the Room, so mark it done'}},
+      {at: 'c1-3.4', text: {zh: '刚才的 @ 已经在 Room 里回过了，标记完成', en: 'That mention was answered in the Room, so mark it done'}},
       {at: 'approval', text: {zh: 'Sam 的 Agent 想把你的 builder 拉进他们的 Room', en: "Sam's Agent wants to add your builder to their Room"}},
       {at: 'consent', text: {zh: '跨账号的 @ 也要你同意：Sam 的 Agent 想叫醒你的 builder', en: "An @ from another account needs your OK too: Sam's Agent wants your builder"}},
-      {at: 'always', text: {zh: '选「Always allow」，以后 Sam 的 Agent 再 @ 就不用再问', en: 'Pick "Always allow" and Sam\'s Agents won\'t need to ask again'}},
+      {at: 'always-1.0', text: {zh: '选「Always allow」，以后 Sam 的 Agent 再 @ 就不用再问', en: 'Pick "Always allow" and Sam\'s Agents won\'t need to ask again'}},
     ],
   },
   {
@@ -103,7 +105,7 @@ const SHOTS: Shot[] = [
       {at: 'switch+0.6', text: {zh: '切到 design-system：你的 builder 正和 Sam 的 Agent 互相 @ 着干活', en: "In design-system, your builder and Sam's Agent now talk directly"}},
     ],
   },
-  {kind: 'end', dur: 6.5},
+  {kind: 'end', dur: 8},
 ];
 
 // ---- layout of the edit -----------------------------------------------------
@@ -133,6 +135,58 @@ const Shot: React.FC<{b: Built; lang: Lang}> = ({b, lang}) => {
       </Fade>
       <Captions caps={b.caps} lang={lang} dur={b.dur} />
     </AbsoluteFill>
+  );
+};
+
+// What the narrator says on the two cards, which carry their own on-screen text.
+const CARD_VO: Record<'title' | 'end', L> = {
+  title: {zh: 'SharedNet 上手教程：让你的 Agent 们，在一个 Room 里协作。', en: 'Getting started with SharedNet: put your Agents in one Room.'},
+  end: {zh: '还没有 Room？把这句话发给你的 Agent。或者打开 Dashboard，新建 Room，邀请你的 Agent。', en: "No Room yet? Send this line to your Agent. Or open the Dashboard, create a Room, and invite your Agents."},
+};
+
+export type Cue = {at: number; window: number; text: string};
+/** Every line the narrator says, on the same clock as the captions it reads. */
+export const cueSheet = (lang: Lang): Cue[] => {
+  const out: Cue[] = [];
+  let f0 = 0;
+  for (const b of build()) {
+    const start = f0 / FPS, frames = Math.round(b.dur * FPS);
+    const k = b.shot.kind;
+    if (k === 'title' || k === 'end') out.push({at: start + 0.5, window: b.dur - 1.0, text: CARD_VO[k][lang]});
+    const caps = [...b.caps].sort((x, y) => x.at - y.at);
+    caps.forEach((c, i) => {
+      const end = i + 1 < caps.length ? caps[i + 1].at : frames / FPS;
+      out.push({at: start + c.at, window: end - c.at, text: c.text[lang]});
+    });
+    f0 += frames;
+  }
+  return out;
+};
+
+type Vo = {at: number; file: string; dur: number};
+const VO: Record<Lang, Vo[]> = {zh: voZh as Vo[], en: voEn as Vo[]};
+
+/** Swing trio under everything, ducked while the narrator talks. */
+const Soundtrack: React.FC<{lang: Lang}> = ({lang}) => {
+  const vo = VO[lang];
+  const level = (f: number) => {
+    const t = f / FPS;
+    let duck = 0;
+    for (const v of vo) {
+      const a = v.at - 0.25, b = v.at + v.dur + 0.45;
+      if (t > a - 0.3 && t < b + 0.6) duck = Math.max(duck, Math.min(clamp((t - (a - 0.3)) / 0.3), clamp((b + 0.6 - t) / 0.6)));
+    }
+    return 0.30 - 0.19 * duck;
+  };
+  return (
+    <>
+      <Audio src={staticFile('audio/music-swing.wav')} volume={level} />
+      {vo.map((v, i) => (
+        <Sequence key={i} from={Math.round(v.at * FPS)} durationInFrames={Math.ceil((v.dur + 0.2) * FPS)} layout="none">
+          <Audio src={staticFile(v.file)} volume={1} />
+        </Sequence>
+      ))}
+    </>
   );
 };
 
@@ -200,6 +254,7 @@ const EndCard: React.FC<{lang: Lang}> = ({lang}) => {
   );
 };
 
+export const totalSeconds = () => total() / FPS;
 const total = () => Math.round(build().reduce((a, b) => a + b.dur, 0) * FPS);
 
 export const Root: React.FC = () => (

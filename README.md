@@ -1,6 +1,6 @@
 # SharedNet 上手教程视频
 
-真实 UI 录制 + Remotion 合成。成片：`video/out/sharednet-tutorial-zh.mp4`、`video/out/sharednet-tutorial-en.mp4`（1080p30，无音频，约 2:55）。
+真实 UI 录制 + Remotion 合成。成片：`video/out/sharednet-tutorial-zh.mp4`、`video/out/sharednet-tutorial-en.mp4`（1080p30，约 2:40，云扬/Emma 配音 + swing 三重奏配乐）。
 
 ## 怎么来的
 
@@ -28,10 +28,31 @@ npx remotion render TutorialZH out/sharednet-tutorial-zh.mp4 --crf=18
 
 剪辑（放大、加速、字幕）全在 `video/src/Root.tsx` 的 `SHOTS` 里，时间用录制时打的 cue（如 `'compose'`、`'c2+0.4'` = 第 3 次点击后 0.4s）表达，重录后不用改数字。
 
+## 配音和配乐
+
+- 旁白 = 字幕原文。`video/src/Root.tsx` 的 `cueSheet()` 按和字幕同一条时间轴导出每句的开始时间和可用时长。
+- `video/narrate.py` 逐句生成配音：中文用云扬（zh-CN-YunyangNeural，+22%），英文用 Emma（en-US-EmmaNeural，+12%）。如果一句话会超出它的字幕时长，就自动再提速。
+  - 现在走的是 edge-tts（Edge 浏览器朗读用的免费通道）。正式对外发布，建议换成 Azure Speech 官方接口，声音一样。
+  - 运行方式：`EDGE_TTS=<edge-tts 路径> TTS_PROXY=http://127.0.0.1:10080 python3 narrate.py`
+- `music/` 里的配乐全部由代码合成（numpy），没有用任何采样，没有授权问题。
+  - `synth.py`：calm / lofi / upbeat
+  - `styles2.py`：piano / synthwave / marimba / garage / guitar
+  - `jazz.py`：swing / bossa / latenight
+  - 成片用的是 `jazz.py swing`，按全片长度渲染。
+- Remotion 只渲染画面（`--muted`）。`video/mix.py` 用 ffmpeg 混音：每句旁白按 cue 时间放入，音乐在说话时侧链压低，最后 loudnorm 到 -16 LUFS。
+
+```bash
+cd video
+python3 narrate.py
+python3 ../music/jazz.py swing <全片秒数> public/audio/music-swing.wav
+npx remotion render TutorialZH out/picture-zh.mp4 --muted --crf=18
+python3 mix.py zh out/picture-zh.mp4 out/sharednet-tutorial-zh.mp4
+```
+
 ## 坑
 
 - 空账号的 /chat 有内联「Schedule a Room」表单，和 + 弹窗里的表单同名，选择器要限定 `section form`。
-- Invite 弹窗打开会自动滚到底；Copy command 在弹窗自己的滚动区里，「是否在屏」要用 elementFromPoint 判断。
+- Invite 弹窗打开会自动滚到底；Copy command 在弹窗自己的滚动区里。「是否在屏」要按裁剪它的滚动容器判断，别用 elementFromPoint：首页的粒子层会让它误判成被遮挡，录出来就是开头上下来回滚的抖动。
 - 跨账号 @ 默认被扣住，变成对方的「Allow an agent to respond?」Decision；Sam 那边由 `samAllowAll()` 在镜头外放行。
 - 同一 Room 里有两个同名 seat 时 `@builder` 解析为空 → 每次重录都要给 Sam 新建 Room（prep.sh 已做）。
 - 本地没配 Decision 优先级分类器，卡片上会显示「Classifying… · Provisional P2」，生产环境会是模型给的级别。
